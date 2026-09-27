@@ -30,6 +30,7 @@
 #define FAULT_THRESHOLD   0.65f
 #define BASELINE_WARMUP_MS 5000
 #define INTERMITTENT_TOGGLE_MS 600
+#define DEBOUNCE_MS 30
 
 struct NodeModel {
   int pin;
@@ -38,7 +39,34 @@ struct NodeModel {
   uint32_t seq = 0;
 };
 
+// Debounces a momentary button wired to GND (INPUT_PULLUP, active LOW).
+// Sample every loop() iteration via read() - a raw transition only
+// becomes the reported state once it has held steady for DEBOUNCE_MS,
+// filtering out mechanical contact bounce.
+struct DebouncedButton {
+  int pin;
+  bool stableState = false;
+  bool rawState = false;
+  unsigned long lastChangeMs = 0;
+
+  bool read() {
+    bool raw = (digitalRead(pin) == LOW);
+    unsigned long now = millis();
+    if (raw != rawState) {
+      rawState = raw;
+      lastChangeMs = now;
+    }
+    if ((now - lastChangeMs) > DEBOUNCE_MS) {
+      stableState = raw;
+    }
+    return stableState;
+  }
+};
+
 NodeModel nodes[3] = { {PIN_POT_N1}, {PIN_POT_N2}, {PIN_POT_N3} };
+DebouncedButton interruptionButton = {PIN_BTN_INTERRUPTION};
+DebouncedButton overloadButton = {PIN_BTN_OVERLOAD};
+DebouncedButton intermittentButton = {PIN_BTN_INTERMITTENT};
 unsigned long lastSend = 0;
 unsigned long bootTime = 0;
 bool intermittentToggle = false;
@@ -90,14 +118,16 @@ void sendPacket(int nodeId, NodeModel &n, float voltage, float anomaly, uint8_t 
 }
 
 void loop() {
+  // Sample/debounce buttons every iteration, independent of the send
+  // cadence below, so a transition is never missed or delayed.
+  bool interruption = interruptionButton.read();
+  bool overload = overloadButton.read();
+  bool intermittent = intermittentButton.read();
+
   if (millis() - lastSend < SEND_INTERVAL_MS) {
     return;
   }
   lastSend = millis();
-
-  bool interruption = digitalRead(PIN_BTN_INTERRUPTION) == LOW;
-  bool overload = digitalRead(PIN_BTN_OVERLOAD) == LOW;
-  bool intermittent = digitalRead(PIN_BTN_INTERMITTENT) == LOW;
 
   if (intermittent && millis() - lastToggle > INTERMITTENT_TOGGLE_MS) {
     intermittentToggle = !intermittentToggle;

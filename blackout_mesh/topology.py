@@ -12,8 +12,8 @@ from .config import build_topology
 
 
 class Topology:
-    def __init__(self):
-        self.graph = build_topology()
+    def __init__(self, edges=None):
+        self.graph = build_topology(edges)
 
     def neighbors(self, node_id: str) -> list[str]:
         return list(self.graph.neighbors(node_id))

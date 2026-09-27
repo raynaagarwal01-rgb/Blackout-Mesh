@@ -32,9 +32,35 @@
 #define WARNING_THRESHOLD 0.35f
 #define FAULT_THRESHOLD   0.65f
 #define BASELINE_WARMUP_MS 5000
+#define DEBOUNCE_MS 30
+
+// Debounces a momentary button wired to GND (INPUT_PULLUP, active LOW).
+// Sample every loop() iteration via read() - a raw transition only
+// becomes the reported state once it has held steady for DEBOUNCE_MS,
+// filtering out mechanical contact bounce.
+struct DebouncedButton {
+  int pin;
+  bool stableState = false;
+  bool rawState = false;
+  unsigned long lastChangeMs = 0;
+
+  bool read() {
+    bool raw = (digitalRead(pin) == LOW);
+    unsigned long now = millis();
+    if (raw != rawState) {
+      rawState = raw;
+      lastChangeMs = now;
+    }
+    if ((now - lastChangeMs) > DEBOUNCE_MS) {
+      stableState = raw;
+    }
+    return stableState;
+  }
+};
 
 uint8_t broadcastAddress[] = {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF};
 
+DebouncedButton faultButton = {PIN_FAULT_BTN};
 float baselineMean = -1.0f;
 float baselineVar = 0.01f;
 uint32_t seqCounter = 0;
@@ -116,13 +142,16 @@ void setLeds(uint8_t state) {
 }
 
 void loop() {
+  // Sample/debounce the button every iteration, independent of the
+  // send cadence below, so a transition is never missed or delayed.
+  bool faultPressed = faultButton.read();
+
   if (millis() - lastSend < SEND_INTERVAL_MS) {
     return;
   }
   lastSend = millis();
 
   float voltage = readVoltageProxy();
-  bool faultPressed = (digitalRead(PIN_FAULT_BTN) == LOW);
 
   if (faultPressed) {
     voltage = 0.0f;

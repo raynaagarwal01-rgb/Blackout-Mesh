@@ -41,11 +41,17 @@ class NodeStatus:
 
 
 class FaultInferenceEngine:
-    def __init__(self, storage=None):
-        self.topology = Topology()
+    def __init__(self, storage=None, node_ids=None, topology_edges=None):
+        """`node_ids`/`topology_edges` default to config.NODE_IDS/TOPOLOGY_EDGES
+        (a straight-line feeder), but accept any tree-shaped topology — e.g.
+        a branching feeder where one node splits into two downstream
+        sections. Pass them explicitly to use an alternate topology without
+        editing config.py (e.g. from a script or test)."""
+        self.topology = Topology(topology_edges)
         self.baseline = BaselineTracker()
-        self.nodes: dict[str, NodeStatus] = {nid: NodeStatus(node_id=nid) for nid in NODE_IDS}
-        self.ml_layers: dict[str, MLAnomalyLayer] = {nid: MLAnomalyLayer() for nid in NODE_IDS}
+        node_ids = node_ids if node_ids is not None else NODE_IDS
+        self.nodes: dict[str, NodeStatus] = {nid: NodeStatus(node_id=nid) for nid in node_ids}
+        self.ml_layers: dict[str, MLAnomalyLayer] = {nid: MLAnomalyLayer() for nid in node_ids}
         self.storage = storage
         self._incident_seq = 0
         self.active_incident: Optional[Incident] = None

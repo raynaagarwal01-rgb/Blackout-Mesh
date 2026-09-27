@@ -142,3 +142,7 @@ firmware mistakes before they reach a board.
 This is a **safe, low-voltage DC prototype** — potentiometers stand in
 for real voltage/current. Never connect any part of this build to
 mains power. See `docs/HARDWARE.md` for details.
+
+## License
+
+[MIT](LICENSE)

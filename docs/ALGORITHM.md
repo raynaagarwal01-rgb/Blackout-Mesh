@@ -20,7 +20,15 @@ than any single node's reading could.
 ## Per-edge scoring
 
 For every edge `(i, j)` in the feeder topology graph (`N1-N2`,
-`N2-N3`, `N3-N4` by default, see `blackout_mesh/config.py`):
+`N2-N3`, `N3-N4` by default, see `blackout_mesh/config.py`). The graph
+isn't limited to a straight line — `topology.py`/`inference.py` only
+ever reason in terms of edges and neighbors, so a branching (tree
+-shaped) feeder works too. Either edit `TOPOLOGY_EDGES`/`NODE_IDS` in
+`config.py` to match your feeder's real shape, or pass
+`FaultInferenceEngine(node_ids=..., topology_edges=...)` to use an
+alternate topology without editing that file (see
+`tests/test_branching_topology.py` for a worked example with a
+2-way branch):
 
 ```text
 Score(i,j) = w1 * anomaly_evidence(i,j)

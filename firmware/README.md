@@ -54,3 +54,11 @@ bill of materials for all three budget tiers.
 - All voltage/current values are **DC proxies from potentiometers**,
   not real AC mains measurements. Never wire this project to mains
   power — see the safety note in `docs/HARDWARE.md`.
+- All fault/scenario buttons are **software-debounced** (30ms, see the
+  `DebouncedButton` struct in each sketch) and sampled every `loop()`
+  iteration independent of the ~250ms send cadence, so a press is
+  never missed or delayed by mechanical contact bounce.
+- On the Python side, `backend/run_gateway.py --source serial`
+  automatically retries the serial connection if a board is unplugged
+  or the port drops mid-demo, instead of crashing the gateway process
+  (see `blackout_mesh/serial_source.py`).
