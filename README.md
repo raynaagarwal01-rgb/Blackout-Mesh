@@ -19,7 +19,7 @@ Target build: **₹1,000-1,500, 24 hours, 2 ESP32 boards.** See
 `docs/PITCH.md` for the full pitch, novelty statement, and honest
 "what this does/doesn't claim" framing.
 
-**Live demo:** [blackout-mesh-cqdey6y4jgs9uxarecjpt6.streamlit.app](https://blackout-mesh-cqdey6y4jgs9uxarecjpt6.streamlit.app/)
+**Live demo:** [blackout-mesh-7mhxh73dcju22hw2bh4d2t.streamlit.app](https://blackout-mesh-7mhxh73dcju22hw2bh4d2t.streamlit.app/)
 — cycles through all 5 scenarios automatically (standalone demo mode,
 see `docs/DEPLOYMENT.md`); no hardware attached.
 

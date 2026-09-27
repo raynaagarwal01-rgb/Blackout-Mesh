@@ -1,6 +1,6 @@
 # Deploying the dashboard (Streamlit Community Cloud)
 
-**Live demo:** https://blackout-mesh-cqdey6y4jgs9uxarecjpt6.streamlit.app/
+**Live demo:** https://blackout-mesh-7mhxh73dcju22hw2bh4d2t.streamlit.app/
 
 Streamlit Community Cloud only runs one process — the app itself — so
 it can't also run `backend/run_gateway.py` alongside it the way a
@@ -41,9 +41,13 @@ locally.
 - Without the `BLACKOUT_MESH_STANDALONE_DEMO` secret set, the deployed
   app will just show "Waiting for telemetry" forever, since nothing is
   feeding it data — that variable is what makes it self-sufficient.
-- The live demo above was originally deployed from the PR's feature
-  branch. If it's ever still tracking a branch other than `main`
-  (check **Manage app → Settings → General → Branch**), point it at
-  `main` — Streamlit Cloud only redeploys from whatever branch is
-  configured there, so it won't pick up new pushes to `main`
-  otherwise.
+- **Sharing must be public.** Under **Manage app → Settings →
+  Sharing**, "Who can view this app" needs to be set to *"This app is
+  public and searchable"* — otherwise anonymous visitors (e.g. hackathon
+  judges without a Streamlit account) get redirected to a login page
+  instead of the dashboard.
+- Streamlit Cloud doesn't currently expose an in-place way to change
+  an existing app's source branch from its Settings — if you ever need
+  to move it, it's faster to delete the app and redeploy fresh
+  pointed at the new branch (which is what produced the current live
+  URL above; the subdomain changes each time you do this).
