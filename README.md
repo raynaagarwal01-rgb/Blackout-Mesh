@@ -19,6 +19,10 @@ Target build: **₹1,000-1,500, 24 hours, 2 ESP32 boards.** See
 `docs/PITCH.md` for the full pitch, novelty statement, and honest
 "what this does/doesn't claim" framing.
 
+**Live demo:** [blackout-mesh-cqdey6y4jgs9uxarecjpt6.streamlit.app](https://blackout-mesh-cqdey6y4jgs9uxarecjpt6.streamlit.app/)
+— cycles through all 5 scenarios automatically (standalone demo mode,
+see `docs/DEPLOYMENT.md`); no hardware attached.
+
 ![Dashboard showing a localized incident: N2 in FAULT, N3 OFFLINE, N1/N4 NORMAL, section N2-N3 at 98.2% confidence](docs/dashboard-screenshot.png)
 
 *The dashboard mid-incident during the "feeder interruption" demo scenario (`--scenario interruption`, no hardware needed) — see `docs/DEMO_SCRIPT.md`.*

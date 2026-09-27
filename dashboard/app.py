@@ -95,6 +95,16 @@ def render() -> None:
     incident = storage.active_incident_row()
 
     states = {nid: derive_state(latest.get(nid)) for nid in NODE_IDS}
+
+    # The feeder panel and the incident card come from two separate
+    # queries (per-node latest readings vs. the incidents table). During
+    # an automatic scenario transition (standalone demo mode) a node can
+    # briefly still be mid-recovery in incident-tracking for a tick or
+    # two after its own latest reading already reads NORMAL. Never let
+    # the incident card contradict a feeder panel that's all green.
+    if incident and all(state == "NORMAL" for state in states.values()):
+        incident = None
+
     has_incident = incident is not None
 
     header_col, status_col = st.columns([3, 1])
