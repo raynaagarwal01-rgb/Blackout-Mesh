@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.db
+*.db-journal
+.streamlit/secrets.toml
+.DS_Store
+*.egg-info/
+build/
+dist/
+
+# Arduino / PlatformIO
+.pio/
+*.hex
+*.bin

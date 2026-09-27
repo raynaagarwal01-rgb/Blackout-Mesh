@@ -1,0 +1,10 @@
+pyserial>=3.5
+networkx>=3.0
+numpy>=1.24
+streamlit>=1.38
+plotly>=5.20
+
+# Optional: enables the Layer-2 Isolation Forest cross-check in
+# blackout_mesh/ml_layer.py. The core fault-localization algorithm works
+# fine without it.
+scikit-learn>=1.3
