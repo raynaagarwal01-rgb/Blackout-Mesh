@@ -75,7 +75,10 @@ void printPacket(const MeshPacket &p) {
   );
 }
 
-void onDataRecv(const uint8_t *mac, const uint8_t *data, int len) {
+// arduino-esp32 core 3.x (ESP-IDF 5.x) changed this callback's first
+// argument from a raw MAC pointer to an esp_now_recv_info_t*; this
+// signature matches the current esp_now_recv_cb_t in esp_now.h.
+void onDataRecv(const esp_now_recv_info_t *recvInfo, const uint8_t *data, int len) {
   if (len != sizeof(MeshPacket)) return;
   MeshPacket packet;
   memcpy(&packet, data, sizeof(packet));

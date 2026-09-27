@@ -68,7 +68,10 @@ uint32_t seqCounter = 0;
 unsigned long lastSend = 0;
 unsigned long bootTime = 0;
 
-void onDataSent(const uint8_t *mac, esp_now_send_status_t status) {
+// arduino-esp32 core 3.x (ESP-IDF 5.x) changed this callback's first
+// argument from a raw MAC pointer to a wifi_tx_info_t*; this signature
+// matches the current esp_now_send_cb_t in esp_now.h.
+void onDataSent(const wifi_tx_info_t *txInfo, esp_now_send_status_t status) {
   // no-op; kept for clarity/debugging if you add Serial logging here
 }
 
