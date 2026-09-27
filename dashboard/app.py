@@ -3,13 +3,22 @@
 
 Run with: streamlit run dashboard/app.py
 
-Reads from the same SQLite database the gateway service
+Normally reads from the same SQLite database the gateway service
 (backend/run_gateway.py) writes to, so it can run as a separate
 process — start the gateway first, then this.
+
+For a one-process deployment (e.g. Streamlit Community Cloud, which
+only runs this single script and can't also run a separate gateway
+process), set BLACKOUT_MESH_STANDALONE_DEMO=true (as an environment
+variable, or a Streamlit secret) to have this app run the built-in
+scenario simulator in a background thread on its own, so the demo is
+fully self-contained.
 """
 
 import json
+import os
 import sys
+import threading
 import time
 from pathlib import Path
 
@@ -31,9 +40,44 @@ STATE_COLOR = {"NORMAL": "#16a34a", "WARNING": "#ca8a04", "FAULT": "#dc2626", "O
 _fragment = getattr(st, "fragment", None) or st.experimental_fragment
 
 
+def _config_flag(name: str) -> bool:
+    value = "false"
+    try:
+        value = st.secrets.get(name, value)  # Streamlit Cloud's Secrets manager
+    except Exception:
+        pass
+    value = os.environ.get(name, value)
+    return str(value).strip().lower() in ("1", "true", "yes")
+
+
+STANDALONE_DEMO = _config_flag("BLACKOUT_MESH_STANDALONE_DEMO")
+
+
 @st.cache_resource
 def get_storage() -> Storage:
     return Storage(DB_PATH)
+
+
+@st.cache_resource
+def start_standalone_demo() -> bool:
+    """Runs the scenario simulator in a background thread inside this
+    same process, so the dashboard is a complete, self-contained demo
+    with no separate gateway process required. Cached so it only
+    starts once per running app, not on every Streamlit rerun."""
+    if not STANDALONE_DEMO:
+        return False
+
+    from blackout_mesh.inference import FaultInferenceEngine
+    from blackout_mesh.simulator import Simulator
+
+    engine = FaultInferenceEngine(storage=get_storage())
+
+    def _run() -> None:
+        for reading in Simulator(scenario="auto").stream():
+            engine.ingest(reading)
+
+    threading.Thread(target=_run, daemon=True).start()
+    return True
 
 
 def derive_state(row: dict | None) -> str:
@@ -57,6 +101,8 @@ def render() -> None:
     with header_col:
         st.title("⚡ BLACKOUT MESH")
         st.caption("Distribution intelligence — outage-resilient cooperative edge sensing")
+        if STANDALONE_DEMO:
+            st.caption("🎬 Standalone demo mode — cycling through simulated scenarios, no hardware attached.")
     with status_col:
         if has_incident:
             st.error("⚠ INCIDENT", icon="⚠️")
@@ -131,4 +177,5 @@ def render() -> None:
         st.caption("No incidents recorded yet.")
 
 
+start_standalone_demo()
 render()

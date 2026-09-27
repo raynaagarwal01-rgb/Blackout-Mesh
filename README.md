@@ -135,6 +135,8 @@ firmware mistakes before they reach a board.
 - `docs/PITCH.md` — elevator pitch, novelty statement, honest
   scope/limitations, likely judge Q&A.
 - `docs/TEAM_PLAN.md` — role split and hour-by-hour 24-hour plan.
+- `docs/DEPLOYMENT.md` — deploying the dashboard to Streamlit
+  Community Cloud for a hosted, self-contained demo link.
 - `firmware/README.md` — flashing instructions and wiring per sketch.
 
 ## Safety
