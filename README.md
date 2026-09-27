@@ -1,5 +1,7 @@
 # BLACKOUT MESH
 
+[![CI](https://github.com/raynaagarwal01-rgb/Blackout-Mesh/actions/workflows/ci.yml/badge.svg)](https://github.com/raynaagarwal01-rgb/Blackout-Mesh/actions/workflows/ci.yml)
+
 **Low-cost, outage-resilient cooperative edge intelligence for distribution networks.**
 
 > BLACKOUT MESH is a low-cost network of cooperating edge nodes that
@@ -16,6 +18,10 @@ as evidence about where the fault is.
 Target build: **₹1,000-1,500, 24 hours, 2 ESP32 boards.** See
 `docs/PITCH.md` for the full pitch, novelty statement, and honest
 "what this does/doesn't claim" framing.
+
+![Dashboard showing a localized incident: N2 in FAULT, N3 OFFLINE, N1/N4 NORMAL, section N2-N3 at 98.2% confidence](docs/dashboard-screenshot.png)
+
+*The dashboard mid-incident during the "feeder interruption" demo scenario (`--scenario interruption`, no hardware needed) — see `docs/DEMO_SCRIPT.md`.*
 
 ## Architecture
 
@@ -95,9 +101,28 @@ backend/             CLI entrypoint (run_gateway.py) that wires a data
 dashboard/           Streamlit + Plotly live dashboard.
 firmware/            Arduino/ESP32 sketches: node, gateway, and a
                      single-board all-in-one simulator variant.
+tests/               pytest suite for blackout_mesh/ (algorithm,
+                     topology, baseline, simulator, storage).
 docs/                HARDWARE.md, ALGORITHM.md, DEMO_SCRIPT.md,
                      PITCH.md, TEAM_PLAN.md.
+.github/workflows/   CI: runs the test suite and compiles all three
+                     firmware sketches on every push.
 ```
+
+## Testing & CI
+
+```bash
+pip install -r requirements-dev.txt
+python -m pytest -q
+```
+
+The suite covers the fault-localization algorithm end-to-end against
+all five scenarios (normal, overload, interruption, intermittent,
+connectivity-loss), the topology/baseline helpers, the simulator, and
+SQLite storage round-trips. CI (`.github/workflows/ci.yml`) runs this
+on every push, plus a second job that actually compiles all three
+firmware sketches against the ESP32 core — catching build-breaking
+firmware mistakes before they reach a board.
 
 ## Documentation
 
